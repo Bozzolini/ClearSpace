@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+# The workflow can read the repo. It cannot push code or change settings.
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+      - name: Install locked dependencies
+        run: python -m pip install --require-hashes --no-deps -r requirements.lock
+      - name: Test
+        run: python -m pytest -q
+
+  package:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: test
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+      - name: Install locked dependencies
+        run: python -m pip install --require-hashes --no-deps -r requirements.lock
+      - name: Build
+        run: python -m PyInstaller --noconfirm --clean ClearSpace.spec
+      - name: Zip and hash
+        shell: pwsh
+        run: |
+          $ver = "${{ github.ref_name }}".TrimStart("v")
+          $name = "ClearSpace-$ver-win64.zip"
+          Compress-Archive -Path dist\ClearSpace\* -DestinationPath "dist\$name" -Force
+          $hash = (Get-FileHash -Algorithm SHA256 "dist\$name").Hash.ToLower()
+          "$hash  $name" | Set-Content -Encoding ascii dist\SHA256SUMS
+          Get-Content dist\SHA256SUMS
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ClearSpace-windows
+          path: |
+            dist/ClearSpace-*-win64.zip
+            dist/SHA256SUMS
+          if-no-files-found: error
+      - name: Publish the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          gh release create "${{ github.ref_name }}" dist\ClearSpace-*-win64.zip dist\SHA256SUMS `
+            --title "${{ github.ref_name }}" `
+            --notes "Verify SHA256SUMS before running. See SECURITY.md. Windows SmartScreen may warn because the exe is not code-signed: do not disable it."
