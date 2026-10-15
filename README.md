@@ -4,6 +4,40 @@ ClearSpace è un programma per Windows 10 e Windows 11. Guarda quanto spazio occ
 
 Non cancella nulla da solo. Non si collega a internet. I file restano sul tuo PC.
 
+Le schermate qui sotto usano una cartella di esempio.
+
+## Com'è fatto
+
+### Panoramica
+
+La prima pagina mostra lo spazio dei dischi, i risultati dell'ultima analisi e quanto si può recuperare.
+
+![Panoramica di ClearSpace](immagini/panoramica.png)
+
+### Duplicati
+
+I file uguali sono confrontati per intero. Di ogni gruppo resta selezionabile solo la copia: l'originale non viene preso.
+
+![Pagina dei duplicati](immagini/duplicati.png)
+
+### File grandi
+
+Qui compaiono solo i file più grandi della soglia che imposti.
+
+![Pagina dei file grandi](immagini/file-grandi.png)
+
+### File temporanei
+
+Solo file temporanei e cache riconosciuti, per esempio `.tmp` e i file di cache del browser.
+
+![Pagina dei file temporanei](immagini/temporanei.png)
+
+### Pulizia
+
+Prima di spostare qualcosa nel Cestino vedi l'elenco e devi confermare. Nulla viene cancellato in modo definitivo.
+
+![Pagina di pulizia](immagini/pulizia.png)
+
 ## Installazione
 
 1. Scarica **ClearSpace-Setup.exe** da questa pagina.
